@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insta-Field</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0095f6;
+            --border: #dbdbdb;
+            --bg: #fafafa;
+            --white: #ffffff;
+            --text: #262626;
+            --text-light: #8e8e8e;
+            --red: #ed4956;
+            --blue: #0095f6;
+            --hover: #f5f5f5;
+        }
+
+        body {
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        /* ==================== AUTH PAGE ==================== */
+        .auth-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            background: var(--bg);
+        }
+
+        .auth-wrapper {
+            display: flex;
+            gap: 30px;
+            max-width: 900px;
+            align-items: center;
+        }
+
+        .auth-phone {
+            display: none;
+        }
+
+        .auth-box {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 1px;
+            padding: 40px;
+            width: 100%;
+            max-width: 350px;
+        }
+
+        .auth-logo {
+            font-family: 'Lobster Two', cursive;
+            font-size: 3.5rem;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 400;
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .form-group {
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 9px 8px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            font-size: 12px;
+            color: var(--text);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--text-light);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 7px 16px;
+            background: var(--primary);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .btn-primary:hover {
+            background: #1877f2;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: var(--text-light);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .divider span {
+            padding: 0 18px;
+        }
+
+        .switch-auth {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 1px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .switch-auth a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        /* ==================== HEADER ==================== */
+        .header {
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 975px;
+            margin: 0 auto;
+            padding: 0 20px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-logo {
+            font-family: 'Lobster Two', cursive;
+            font-size: 1.8rem;
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            cursor: pointer;
+        }
+
+        .header-search {
+            position: relative;
+        }
+
+        .header-search input {
+            padding: 6px 30px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            width: 250px;
+            font-size: 14px;
+        }
+
+        .header-search i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-icon {
+            font-size: 24px;
+            color: var(--text);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .nav-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .nav-icon.active {
+            font-weight: 700;
+        }
+
+        .user-avatar-sm {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #f09433, #bc1888);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .user-avatar-sm.active {
+            border-color: var(--text);
+        }
+
+        /* ==================== MAIN LAYOUT ==================== */
+        .main-container {
+            max-width: 975px;
+            margin: 90px auto 0;
+            padding: 0 20px;
+            display: flex;
+            gap: 30px;
+        }
+
+        .feed-container {
+            flex: 1;
+            max-width: 630px;
+        }
+
+        .sidebar {
+            width: 320px;
+            position: sticky;
+            top: 90px;
+            align-self: flex-start;
+        }
+
+        /* ==================== STORIES ==================== */
+        .stories {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px 0;
+            margin-bottom: 24px;
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .stories::-webkit-scrollbar {
+            display: none;
+        }
+
+        .story {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            min-width: 66px;
+            cursor: pointer;
+            padding: 0 10px;
+        }
+
+        .story-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #f09433, #bc1888);
+            padding: 2px;
+        }
+
+        .story-avatar-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .story-username {
+            font-size: 12px;
+            color: var(--text);
+            max-width: 66px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* ==================== POST ==================== */
+        .post {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+
+        .post.sponsored {
+            border-color: #ffe58f;
+            background: linear-gradient(to bottom, #fffbeb 0%, var(--white) 50px);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            gap: 12px;
+        }
+
+        .post-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #f09433, #bc1888);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .post-user-info {
+            flex: 1;
+        }
+
+        .post-username {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .post-location {
+            font-size: 12px;
+            color: var(--text);
+        }
+
+        .post-sponsored-tag {
+            font-size: 11px;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .post-options {
+            font-size: 20px;
+            color: var(--text);
+            cursor: pointer;
+        }
+
+        .post-image {
+            width: 100%;
+            max-height: 600px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .post-actions {
+            padding: 8px 16px;
+            display: flex;
+            gap: 16px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text);
+            transition: transform 0.1s;
+        }
+
+        .action-btn:hover {
+            opacity: 0.6;
+        }
+
+        .action-btn:active {
+            transform: scale(0.9);
+        }
+
+        .action-btn.liked {
+            color: var(--red);
+            animation: like 0.3s ease;
+        }
+
+        @keyframes like {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .action-btn-save {
+            margin-left: auto;
+        }
+
+        .post-likes {
+            padding: 0 16px 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .post-caption {
+            padding: 0 16px 8px;
+            font-size: 14px;
+        }
+
+        .post-caption-username {
+            font-weight: 600;
+            margin-right: 6px;
+        }
+
+        .post-comments-link {
+            padding: 0 16px 8px;
+            font-size: 14px;
+            color: var(--text-light);
+            cursor: pointer;
+        }
+
+        .post-comments {
+            padding: 0 16px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .comment {
+            font-size: 14px;
+            margin-bottom: 8px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .comment-username {
+            font-weight: 600;
+        }
+
+        .comment-text {
+            flex: 1;
+        }
+
+        .comment-like {
+            font-size: 12px;
+            color: var(--text-light);
+            cursor: pointer;
+        }
+
+        .post-time {
+            padding: 0 16px 12px;
+            font-size: 10px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+        }
+
+        .post-add-comment {
+            border-top: 1px solid var(--border);
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .comment-emoji {
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .comment-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            background: transparent;
+        }
+
+        .comment-submit {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 14px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .comment-submit:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* ==================== SIDEBAR ==================== */
+        .sidebar-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .sidebar-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #f09433, #bc1888);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .sidebar-info {
+            flex: 1;
+        }
+
+        .sidebar-username {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .sidebar-fullname {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .sidebar-switch {
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .suggestions-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .suggestions-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .suggestion {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .suggestion-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .suggestion-info {
+            flex: 1;
+        }
+
+        .suggestion-username {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .suggestion-relation {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .suggestion-follow {
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 11px;
+            color: var(--text-light);
+        }
+
+        /* ==================== CREATE POST MODAL ==================== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.65);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 12px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+            font-weight: 600;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: var(--bg);
+        }
+
+        .upload-area i {
+            font-size: 48px;
+            color: var(--text-light);
+            margin-bottom: 16px;
+        }
+
+        .upload-preview {
+            display: none;
+            margin-bottom: 20px;
+        }
+
+        .upload-preview.active {
+            display: block;
+        }
+
+        .upload-preview img {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .form-textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            margin-bottom: 12px;
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 1024px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main-container {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-search {
+                display: none;
+            }
+
+            .main-container {
+                margin-top: 70px;
+                padding: 0;
+            }
+
+            .feed-container {
+                max-width: 100%;
+            }
+
+            .stories,
+            .post {
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+            }
+
+            .auth-wrapper {
+                flex-direction: column;
+            }
+
+            .auth-phone {
+                display: none;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-light);
+        }
+
+        /* Sponsored Ad Styling */
+        .sponsored-banner {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 12px 16px;
+            text-align: center;
+        }
+
+        .sponsored-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #8b4513;
+            margin-bottom: 8px;
+        }
+
+        .sponsored-text {
+            font-size: 14px;
+            color: #654321;
+            line-height: 1.5;
+        }
+
+        .sponsored-cta {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 8px 24px;
+            background: #8b4513;
+            color: white;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 13px;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Lobster+Two&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- ==================== AUTH PAGE ==================== -->
+    <div id="authPage" class="auth-container">
+        <div class="auth-wrapper">
+            <div class="auth-phone">
+                <!-- Instagram phone mockup could go here -->
+            </div>
+            
+            <div style="display: flex; flex-direction: column; width: 100%; max-width: 350px;">
+                <div class="auth-box">
+                    <div class="auth-logo">Insta-Field</div>
+                    
+                    <div id="errorMsg" class="error-message hidden"></div>
+                    
+                    <!-- Login Form -->
+                    <div id="loginForm">
+                        <div class="form-group">
+                            <input type="text" class="form-input" id="loginUsername" placeholder="Nom d'utilisateur, téléphone ou email">
+                        </div>
+                        <div class="form-group">
+                            <input type="password" class="form-input" id="loginPassword" placeholder="Mot de passe">
+                        </div>
+                        <button class="btn-primary" onclick="login()">Connexion</button>
+                        
+                        <div class="divider">
+                            <span>OU</span>
+                        </div>
+                        
+                        <div style="text-align: center; margin-top: 20px;">
+                            <a href="#" style="color: var(--text-light); font-size: 12px;">Mot de passe oublié ?</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Signup Form -->
+                    <div id="signupForm" class="hidden">
+                        <p style="text-align: center; color: var(--text-light); font-size: 17px; font-weight: 600; margin-bottom: 20px;">
+                            Inscrivez-vous pour voir les photos et vidéos de vos amis.
+                        </p>
+                        
+                        <div class="form-group">
+                            <input type="email" class="form-input" id="signupEmail" placeholder="Email">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-input" id="signupFullname" placeholder="Nom complet">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-input" id="signupUsername" placeholder="Nom d'utilisateur">
+                        </div>
+                        <div class="form-group">
+                            <input type="password" class="form-input" id="signupPassword" placeholder="Mot de passe">
+                        </div>
+                        
+                        <button class="btn-primary" onclick="signup()">S'inscrire</button>
+                        
+                        <p style="text-align: center; color: var(--text-light); font-size: 12px; margin-top: 20px; line-height: 1.5;">
+                            En vous inscrivant, vous acceptez nos Conditions générales. Découvrez comment nous collectons, utilisons et partageons vos données dans notre Politique de confidentialité.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="switch-auth">
+                    <span id="switchText">Vous n'avez pas de compte ? <a id="switchLink" onclick="toggleAuthMode()">Inscrivez-vous</a></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MAIN APP ==================== -->
+    <div id="mainApp" class="hidden">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="header-logo" onclick="refreshFeed()">Insta-Field</div>
+                
+                <div class="header-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Rechercher">
+                </div>
+                
+                <nav class="header-nav">
+                    <i class="fas fa-home nav-icon active" onclick="showHome()"></i>
+                    <i class="far fa-paper-plane nav-icon" onclick="showMessages()"></i>
+                    <i class="far fa-plus-square nav-icon" onclick="openCreateModal()"></i>
+                    <i class="far fa-compass nav-icon"></i>
+                    <i class="far fa-heart nav-icon"></i>
+                    <div class="user-avatar-sm" id="headerAvatar" onclick="showProfile()"></div>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Container -->
+        <div class="main-container">
+            <!-- Feed -->
+            <div class="feed-container">
+                <!-- Stories -->
+                <div class="stories" id="stories">
+                    <div class="story">
+                        <div class="story-avatar">
+                            <div class="story-avatar-inner" id="myStoryAvatar"></div>
+                        </div>
+                        <div class="story-username">Votre story</div>
+                    </div>
+                </div>
+
+                <!-- Posts Feed -->
+                <div id="postsContainer">
+                    <div class="loading">Chargement du fil...</div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="sidebar-profile">
+                    <div class="sidebar-avatar" id="sidebarAvatar"></div>
+                    <div class="sidebar-info">
+                        <div class="sidebar-username" id="sidebarUsername"></div>
+                        <div class="sidebar-fullname" id="sidebarFullname"></div>
+                    </div>
+                    <div class="sidebar-switch" onclick="logout()">Changer</div>
+                </div>
+
+                <div class="suggestions-header">
+                    <span class="suggestions-title">Suggestions pour vous</span>
+                    <span style="font-size: 12px; font-weight: 600; cursor: pointer;">Voir tout</span>
+                </div>
+
+                <div id="suggestions"></div>
+
+                <div class="footer">
+                    <div style="margin-bottom: 16px;">
+                        <a href="#" style="color: var(--text-light); margin-right: 12px;">À propos</a>
+                        <a href="#" style="color: var(--text-light); margin-right: 12px;">Aide</a>
+                        <a href="#" style="color: var(--text-light); margin-right: 12px;">Presse</a>
+                        <a href="#" style="color: var(--text-light); margin-right: 12px;">API</a>
+                    </div>
+                    <div>© 2025 INSTA-FIELD</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Post Modal -->
+        <div id="createModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    Créer une nouvelle publication
+                    <span class="modal-close" onclick="closeCreateModal()">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div id="uploadArea" class="upload-area" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p style="color: var(--text); font-size: 16px; font-weight: 300;">Sélectionnez une photo</p>
+                    </div>
+                    <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
+                    
+                    <div id="uploadPreview" class="upload-preview">
+                        <img id="previewImage" src="" alt="Preview">
+                    </div>
+                    
+                    <textarea id="captionInput" class="form-textarea" placeholder="Écrivez une légende..."></textarea>
+                    <input type="text" class="form-input" id="locationInput" placeholder="Ajouter un lieu" style="margin-bottom: 20px;">
+                    
+                    <button class="btn-primary" onclick="createPost()">Partager</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== CONFIG ====================
+        const SUPABASE_URL = 'https://yhhxdaknxussicbkmizm.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloaHhkYWtueHVzc2ljYmttaXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA0NjgwNzksImV4cCI6MjA4NjA0NDA3OX0.CKsBCiiP4jLqFp_-si05XF2ljXHgAKeYGjfbMflHyro';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        let currentUser = null;
+        let isSignupMode = false;
+
+        // ==================== INIT ====================
+        async function init() {
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            if (session) {
+                currentUser = session.user;
+                await loadUserProfile();
+                showApp();
+            } else {
+                document.getElementById('authPage').classList.remove('hidden');
+            }
+        }
+
+        async function loadUserProfile() {
+            const { data } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', currentUser.id)
+                .single();
+                
+            if (data) {
+                currentUser.profile = data;
+            }
+        }
+
+        // ==================== AUTH ====================
+        async function login() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) {
+                showError('Veuillez remplir tous les champs');
+                return;
+            }
+
+            // Try to find user by username or email
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('*')
+                .or(`username.eq.${username},email.eq.${username}`)
+                .single();
+
+            if (!profile) {
+                showError('Utilisateur introuvable');
+                return;
+            }
+
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: profile.email,
+                password: password
+            });
+
+            if (error) {
+                showError('Identifiants incorrects');
+            } else {
+                currentUser = data.user;
+                await loadUserProfile();
+                showApp();
+            }
+        }
+
+        async function signup() {
+            const email = document.getElementById('signupEmail').value;
+            const fullname = document.getElementById('signupFullname').value;
+            const username = document.getElementById('signupUsername').value;
+            const password = document.getElementById('signupPassword').value;
+
+            if (!email || !fullname || !username || !password) {
+                showError('Veuillez remplir tous les champs');
+                return;
+            }
+
+            if (password.length < 6) {
+                showError('Le mot de passe doit contenir au moins 6 caractères');
+                return;
+            }
+
+            // Check if username exists
+            const { data: existing } = await supabase
+                .from('profiles')
+                .select('username')
+                .eq('username', username)
+                .single();
+
+            if (existing) {
+                showError('Ce nom d\'utilisateur est déjà pris');
+                return;
+            }
+
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: { username, full_name: fullname }
+                }
+            });
+
+            if (error) {
+                showError(error.message);
+            } else {
+                await supabase.from('profiles').insert([
+                    { id: data.user.id, username, full_name: fullname, email }
+                ]);
+                
+                currentUser = data.user;
+                await loadUserProfile();
+                showApp();
+            }
+        }
+
+        async function logout() {
+            await supabase.auth.signOut();
+            location.reload();
+        }
+
+        function toggleAuthMode() {
+            isSignupMode = !isSignupMode;
+            
+            if (isSignupMode) {
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('signupForm').classList.remove('hidden');
+                document.getElementById('switchText').innerHTML = 'Vous avez un compte ? <a onclick="toggleAuthMode()">Connectez-vous</a>';
+            } else {
+                document.getElementById('loginForm').classList.remove('hidden');
+                document.getElementById('signupForm').classList.add('hidden');
+                document.getElementById('switchText').innerHTML = 'Vous n\'avez pas de compte ? <a onclick="toggleAuthMode()">Inscrivez-vous</a>';
+            }
+        }
+
+        function showError(message) {
+            const el = document.getElementById('errorMsg');
+            el.textContent = message;
+            el.classList.remove('hidden');
+            setTimeout(() => el.classList.add('hidden'), 5000);
+        }
+
+        function showApp() {
+            document.getElementById('authPage').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            
+            const avatar = currentUser.profile.username.charAt(0).toUpperCase();
+            document.getElementById('headerAvatar').textContent = avatar;
+            document.getElementById('sidebarAvatar').textContent = avatar;
+            document.getElementById('myStoryAvatar').textContent = avatar;
+            document.getElementById('sidebarUsername').textContent = currentUser.profile.username;
+            document.getElementById('sidebarFullname').textContent = currentUser.profile.full_name || currentUser.profile.username;
+            
+            loadFeed();
+            loadSuggestions();
+        }
+
+        // ==================== FEED ====================
+        async function loadFeed() {
+            const { data: posts, error } = await supabase
+                .from('posts')
+                .select(`
+                    *,
+                    profiles:user_id (username, full_name),
+                    likes (user_id),
+                    comments (id)
+                `)
+                .order('created_at', { ascending: false });
+
+            const container = document.getElementById('postsContainer');
+            
+            if (posts && posts.length > 0) {
+                // Add sponsored post every 3 posts
+                let postsHTML = '';
+                posts.forEach((post, index) => {
+                    postsHTML += createPostHTML(post);
+                    
+                    // Insert sponsored post after every 3rd post
+                    if ((index + 1) % 3 === 0) {
+                        postsHTML += createSponsoredPost();
+                    }
+                });
+                
+                container.innerHTML = postsHTML;
+            } else {
+                container.innerHTML = '<div class="loading">Aucune publication pour le moment</div>';
+            }
+        }
+
+        function createSponsoredPost() {
+            return `
+                <div class="post sponsored">
+                    <div class="post-header">
+                        <div class="post-avatar" style="background: linear-gradient(45deg, #ffd700, #ffed4e); color: #8b4513;">T</div>
+                        <div class="post-user-info">
+                            <div class="post-username">taverne_mccain</div>
+                            <div class="post-sponsored-tag">Sponsorisé</div>
+                        </div>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&h=800&fit=crop" alt="Taverne McCain" class="post-image">
+                    <div class="sponsored-banner">
+                        <div class="sponsored-title">🍔 Taverne McCain 🍟</div>
+                        <div class="sponsored-text">
+                            Venez à la taverne McCain, ici produit frais 24/7, livraison où que vous soyez et n'importe quand
+                        </div>
+                        <a href="#" class="sponsored-cta">Commander maintenant</a>
+                    </div>
+                    <div class="post-time">PUBLICATION SPONSORISÉE</div>
+                </div>
+            `;
+        }
+
+        function createPostHTML(post) {
+            const username = post.profiles?.username || 'utilisateur';
+            const fullname = post.profiles?.full_name || username;
+            const avatar = username.charAt(0).toUpperCase();
+            const timeAgo = getTimeAgo(post.created_at);
+            const isLiked = post.likes?.some(like => like.user_id === currentUser.id);
+            const likesCount = post.likes?.length || 0;
+            const commentsCount = post.comments?.length || 0;
+            
+            return `
+                <div class="post" data-post-id="${post.id}">
+                    <div class="post-header">
+                        <div class="post-avatar">${avatar}</div>
+                        <div class="post-user-info">
+                            <div class="post-username">${username}</div>
+                            ${post.location ? `<div class="post-location">${post.location}</div>` : ''}
+                        </div>
+                        <i class="fas fa-ellipsis-h post-options"></i>
+                    </div>
+                    
+                    <img src="${post.image_url}" alt="Post" class="post-image" ondblclick="likePost('${post.id}', this)">
+                    
+                    <div class="post-actions">
+                        <button class="action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}', this)">
+                            <i class="${isLiked ? 'fas' : 'far'} fa-heart"></i>
+                        </button>
+                        <button class="action-btn" onclick="focusComment('${post.id}')">
+                            <i class="far fa-comment"></i>
+                        </button>
+                        <button class="action-btn">
+                            <i class="far fa-paper-plane"></i>
+                        </button>
+                        <button class="action-btn action-btn-save">
+                            <i class="far fa-bookmark"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="post-likes" id="likes-${post.id}">${likesCount} J'aime</div>
+                    
+                    ${post.caption ? `
+                        <div class="post-caption">
+                            <span class="post-caption-username">${username}</span>
+                            ${post.caption}
+                        </div>
+                    ` : ''}
+                    
+                    <div class="post-comments-link" onclick="loadComments('${post.id}')">
+                        Afficher les ${commentsCount} commentaires
+                    </div>
+                    
+                    <div class="post-comments" id="comments-${post.id}"></div>
+                    
+                    <div class="post-time">${timeAgo}</div>
+                    
+                    <div class="post-add-comment">
+                        <span class="comment-emoji">😊</span>
+                        <input type="text" class="comment-input" id="comment-input-${post.id}" placeholder="Ajouter un commentaire..." onkeypress="handleCommentKeypress(event, '${post.id}')">
+                        <button class="comment-submit" onclick="addComment('${post.id}')" disabled id="comment-btn-${post.id}">Publier</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ==================== LIKES ====================
+        async function toggleLike(postId, btn) {
+            const icon = btn.querySelector('i');
+            const isLiked = btn.classList.contains('liked');
+            
+            if (isLiked) {
+                // Unlike
+                await supabase
+                    .from('likes')
+                    .delete()
+                    .eq('post_id', postId)
+                    .eq('user_id', currentUser.id);
+                    
+                btn.classList.remove('liked');
+                icon.className = 'far fa-heart';
+            } else {
+                // Like
+                await supabase
+                    .from('likes')
+                    .insert([{ post_id: postId, user_id: currentUser.id }]);
+                    
+                btn.classList.add('liked');
+                icon.className = 'fas fa-heart';
+            }
+            
+            await updateLikesCount(postId);
+        }
+
+        async function likePost(postId, img) {
+            const post = img.closest('.post');
+            const likeBtn = post.querySelector('.action-btn');
+            
+            if (!likeBtn.classList.contains('liked')) {
+                await toggleLike(postId, likeBtn);
+            }
+        }
+
+        async function updateLikesCount(postId) {
+            const { count } = await supabase
+                .from('likes')
+                .select('*', { count: 'exact', head: true })
+                .eq('post_id', postId);
+                
+            document.getElementById(`likes-${postId}`).textContent = `${count} J'aime`;
+        }
+
+        // ==================== COMMENTS ====================
+        async function loadComments(postId) {
+            const { data: comments } = await supabase
+                .from('comments')
+                .select(`
+                    *,
+                    profiles:user_id (username)
+                `)
+                .eq('post_id', postId)
+                .order('created_at', { ascending: true });
+                
+            const container = document.getElementById(`comments-${postId}`);
+            
+            if (comments && comments.length > 0) {
+                container.innerHTML = comments.map(comment => `
+                    <div class="comment">
+                        <span class="comment-username">${comment.profiles.username}</span>
+                        <span class="comment-text">${comment.content}</span>
+                        <i class="far fa-heart comment-like"></i>
+                    </div>
+                `).join('');
+            }
+        }
+
+        async function addComment(postId) {
+            const input = document.getElementById(`comment-input-${postId}`);
+            const content = input.value.trim();
+            
+            if (!content) return;
+            
+            await supabase
+                .from('comments')
+                .insert([{
+                    post_id: postId,
+                    user_id: currentUser.id,
+                    content: content
+                }]);
+                
+            input.value = '';
+            document.getElementById(`comment-btn-${postId}`).disabled = true;
+            
+            await loadComments(postId);
+            
+            // Update comment count
+            const { count } = await supabase
+                .from('comments')
+                .select('*', { count: 'exact', head: true })
+                .eq('post_id', postId);
+                
+            const post = document.querySelector(`[data-post-id="${postId}"]`);
+            const link = post.querySelector('.post-comments-link');
+            link.textContent = `Afficher les ${count} commentaires`;
+        }
+
+        function handleCommentKeypress(event, postId) {
+            const input = event.target;
+            const btn = document.getElementById(`comment-btn-${postId}`);
+            
+            btn.disabled = !input.value.trim();
+            
+            if (event.key === 'Enter' && input.value.trim()) {
+                addComment(postId);
+            }
+        }
+
+        function focusComment(postId) {
+            document.getElementById(`comment-input-${postId}`).focus();
+        }
+
+        // ==================== CREATE POST ====================
+        let selectedFile = null;
+
+        function openCreateModal() {
+            document.getElementById('createModal').classList.add('active');
+        }
+
+        function closeCreateModal() {
+            document.getElementById('createModal').classList.remove('active');
+            selectedFile = null;
+            document.getElementById('uploadPreview').classList.remove('active');
+            document.getElementById('captionInput').value = '';
+            document.getElementById('locationInput').value = '';
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                selectedFile = file;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewImage').src = e.target.result;
+                    document.getElementById('uploadPreview').classList.add('active');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function createPost() {
+            if (!selectedFile) {
+                alert('Veuillez sélectionner une image');
+                return;
+            }
+
+            const caption = document.getElementById('captionInput').value;
+            const location = document.getElementById('locationInput').value;
+
+            // Upload image
+            const fileExt = selectedFile.name.split('.').pop();
+            const fileName = `${Math.random()}.${fileExt}`;
+            const filePath = `${currentUser.id}/${fileName}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('post-images')
+                .upload(filePath, selectedFile);
+
+            if (uploadError) {
+                alert('Erreur lors de l\'upload de l\'image');
+                return;
+            }
+
+            const { data } = supabase.storage
+                .from('post-images')
+                .getPublicUrl(filePath);
+
+            // Create post
+            await supabase
+                .from('posts')
+                .insert([{
+                    user_id: currentUser.id,
+                    image_url: data.publicUrl,
+                    caption: caption || null,
+                    location: location || null
+                }]);
+
+            closeCreateModal();
+            await loadFeed();
+        }
+
+        // ==================== SUGGESTIONS ====================
+        async function loadSuggestions() {
+            const { data: users } = await supabase
+                .from('profiles')
+                .select('*')
+                .neq('id', currentUser.id)
+                .limit(5);
+
+            const container = document.getElementById('suggestions');
+            
+            if (users && users.length > 0) {
+                container.innerHTML = users.map(user => {
+                    const avatar = user.username.charAt(0).toUpperCase();
+                    return `
+                        <div class="suggestion">
+                            <div class="suggestion-avatar">${avatar}</div>
+                            <div class="suggestion-info">
+                                <div class="suggestion-username">${user.username}</div>
+                                <div class="suggestion-relation">Suggéré pour vous</div>
+                            </div>
+                            <div class="suggestion-follow">Suivre</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // ==================== UTILITIES ====================
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+            
+            if (seconds < 60) return 'Il y a quelques secondes';
+            if (seconds < 3600) return `Il y a ${Math.floor(seconds / 60)} minutes`;
+            if (seconds < 86400) return `Il y a ${Math.floor(seconds / 3600)} heures`;
+            if (seconds < 604800) return `Il y a ${Math.floor(seconds / 86400)} jours`;
+            
+            return new Date(date).toLocaleDateString('fr-FR');
+        }
+
+        function refreshFeed() {
+            loadFeed();
+        }
+
+        function showHome() {
+            document.querySelectorAll('.nav-icon').forEach(icon => icon.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        }
+
+        function showMessages() {
+            alert('Fonctionnalité à venir !');
+        }
+
+        function showProfile() {
+            alert('Fonctionnalité à venir !');
+        }
+
+        // ==================== START ====================
+        init();
+    </script>
+</body>
+</html>
