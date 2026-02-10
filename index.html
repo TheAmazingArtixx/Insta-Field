@@ -6,6 +6,7 @@
     <title>Insta-Field</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Lobster+Two&display=swap" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap');
         
@@ -733,6 +734,40 @@
             margin-bottom: 12px;
         }
 
+        /* Sponsored Ad Styling */
+        .sponsored-banner {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 12px 16px;
+            text-align: center;
+        }
+
+        .sponsored-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #8b4513;
+            margin-bottom: 8px;
+        }
+
+        .sponsored-text {
+            font-size: 14px;
+            color: #654321;
+            line-height: 1.5;
+        }
+
+        .sponsored-cta {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 8px 24px;
+            background: #8b4513;
+            color: white;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
         /* ==================== RESPONSIVE ==================== */
         @media (max-width: 1024px) {
             .sidebar {
@@ -783,42 +818,7 @@
             padding: 40px;
             color: var(--text-light);
         }
-
-        /* Sponsored Ad Styling */
-        .sponsored-banner {
-            background: linear-gradient(135deg, #ffd700, #ffed4e);
-            padding: 20px;
-            border-radius: 8px;
-            margin: 12px 16px;
-            text-align: center;
-        }
-
-        .sponsored-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: #8b4513;
-            margin-bottom: 8px;
-        }
-
-        .sponsored-text {
-            font-size: 14px;
-            color: #654321;
-            line-height: 1.5;
-        }
-
-        .sponsored-cta {
-            display: inline-block;
-            margin-top: 12px;
-            padding: 8px 24px;
-            background: #8b4513;
-            color: white;
-            border-radius: 20px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 13px;
-        }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Lobster+Two&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- ==================== AUTH PAGE ==================== -->
@@ -842,7 +842,7 @@
                         <div class="form-group">
                             <input type="password" class="form-input" id="loginPassword" placeholder="Mot de passe">
                         </div>
-                        <button class="btn-primary" onclick="login()">Connexion</button>
+                        <button class="btn-primary" id="loginBtn">Connexion</button>
                         
                         <div class="divider">
                             <span>OU</span>
@@ -872,16 +872,16 @@
                             <input type="password" class="form-input" id="signupPassword" placeholder="Mot de passe">
                         </div>
                         
-                        <button class="btn-primary" onclick="signup()">S'inscrire</button>
+                        <button class="btn-primary" id="signupBtn">S'inscrire</button>
                         
                         <p style="text-align: center; color: var(--text-light); font-size: 12px; margin-top: 20px; line-height: 1.5;">
-                            En vous inscrivant, vous acceptez nos Conditions générales. Découvrez comment nous collectons, utilisons et partageons vos données dans notre Politique de confidentialité.
+                            En vous inscrivant, vous acceptez nos Conditions générales.
                         </p>
                     </div>
                 </div>
                 
                 <div class="switch-auth">
-                    <span id="switchText">Vous n'avez pas de compte ? <a id="switchLink" onclick="toggleAuthMode()">Inscrivez-vous</a></span>
+                    <span id="switchText">Vous n'avez pas de compte ? <a id="switchLink">Inscrivez-vous</a></span>
                 </div>
             </div>
         </div>
@@ -892,7 +892,7 @@
         <!-- Header -->
         <header class="header">
             <div class="header-content">
-                <div class="header-logo" onclick="refreshFeed()">Insta-Field</div>
+                <div class="header-logo" id="logoBtn">Insta-Field</div>
                 
                 <div class="header-search">
                     <i class="fas fa-search"></i>
@@ -900,12 +900,12 @@
                 </div>
                 
                 <nav class="header-nav">
-                    <i class="fas fa-home nav-icon active" onclick="showHome()"></i>
-                    <i class="far fa-paper-plane nav-icon" onclick="showMessages()"></i>
-                    <i class="far fa-plus-square nav-icon" onclick="openCreateModal()"></i>
+                    <i class="fas fa-home nav-icon active" id="homeBtn"></i>
+                    <i class="far fa-paper-plane nav-icon" id="messagesBtn"></i>
+                    <i class="far fa-plus-square nav-icon" id="createBtn"></i>
                     <i class="far fa-compass nav-icon"></i>
                     <i class="far fa-heart nav-icon"></i>
-                    <div class="user-avatar-sm" id="headerAvatar" onclick="showProfile()"></div>
+                    <div class="user-avatar-sm" id="headerAvatar"></div>
                 </nav>
             </div>
         </header>
@@ -938,7 +938,7 @@
                         <div class="sidebar-username" id="sidebarUsername"></div>
                         <div class="sidebar-fullname" id="sidebarFullname"></div>
                     </div>
-                    <div class="sidebar-switch" onclick="logout()">Changer</div>
+                    <div class="sidebar-switch" id="logoutBtn">Changer</div>
                 </div>
 
                 <div class="suggestions-header">
@@ -965,14 +965,14 @@
             <div class="modal-content">
                 <div class="modal-header">
                     Créer une nouvelle publication
-                    <span class="modal-close" onclick="closeCreateModal()">&times;</span>
+                    <span class="modal-close" id="closeModalBtn">&times;</span>
                 </div>
                 <div class="modal-body">
-                    <div id="uploadArea" class="upload-area" onclick="document.getElementById('fileInput').click()">
+                    <div id="uploadArea" class="upload-area">
                         <i class="fas fa-cloud-upload-alt"></i>
                         <p style="color: var(--text); font-size: 16px; font-weight: 300;">Sélectionnez une photo</p>
                     </div>
-                    <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
+                    <input type="file" id="fileInput" accept="image/*" style="display: none;">
                     
                     <div id="uploadPreview" class="upload-preview">
                         <img id="previewImage" src="" alt="Preview">
@@ -981,7 +981,7 @@
                     <textarea id="captionInput" class="form-textarea" placeholder="Écrivez une légende..."></textarea>
                     <input type="text" class="form-input" id="locationInput" placeholder="Ajouter un lieu" style="margin-bottom: 20px;">
                     
-                    <button class="btn-primary" onclick="createPost()">Partager</button>
+                    <button class="btn-primary" id="sharePostBtn">Partager</button>
                 </div>
             </div>
         </div>
@@ -992,14 +992,15 @@
         const SUPABASE_URL = 'https://yhhxdaknxussicbkmizm.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloaHhkYWtueHVzc2ljYmttaXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA0NjgwNzksImV4cCI6MjA4NjA0NDA3OX0.CKsBCiiP4jLqFp_-si05XF2ljXHgAKeYGjfbMflHyro';
         
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         let currentUser = null;
         let isSignupMode = false;
+        let selectedFile = null;
 
         // ==================== INIT ====================
         async function init() {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session } } = await sb.auth.getSession();
             
             if (session) {
                 currentUser = session.user;
@@ -1011,7 +1012,7 @@
         }
 
         async function loadUserProfile() {
-            const { data } = await supabase
+            const { data } = await sb
                 .from('profiles')
                 .select('*')
                 .eq('id', currentUser.id)
@@ -1032,8 +1033,7 @@
                 return;
             }
 
-            // Try to find user by username or email
-            const { data: profile } = await supabase
+            const { data: profile } = await sb
                 .from('profiles')
                 .select('*')
                 .or(`username.eq.${username},email.eq.${username}`)
@@ -1044,7 +1044,7 @@
                 return;
             }
 
-            const { data, error } = await supabase.auth.signInWithPassword({
+            const { data, error } = await sb.auth.signInWithPassword({
                 email: profile.email,
                 password: password
             });
@@ -1074,8 +1074,7 @@
                 return;
             }
 
-            // Check if username exists
-            const { data: existing } = await supabase
+            const { data: existing } = await sb
                 .from('profiles')
                 .select('username')
                 .eq('username', username)
@@ -1086,7 +1085,7 @@
                 return;
             }
 
-            const { data, error } = await supabase.auth.signUp({
+            const { data, error } = await sb.auth.signUp({
                 email,
                 password,
                 options: {
@@ -1097,7 +1096,7 @@
             if (error) {
                 showError(error.message);
             } else {
-                await supabase.from('profiles').insert([
+                await sb.from('profiles').insert([
                     { id: data.user.id, username, full_name: fullname, email }
                 ]);
                 
@@ -1108,7 +1107,7 @@
         }
 
         async function logout() {
-            await supabase.auth.signOut();
+            await sb.auth.signOut();
             location.reload();
         }
 
@@ -1118,11 +1117,13 @@
             if (isSignupMode) {
                 document.getElementById('loginForm').classList.add('hidden');
                 document.getElementById('signupForm').classList.remove('hidden');
-                document.getElementById('switchText').innerHTML = 'Vous avez un compte ? <a onclick="toggleAuthMode()">Connectez-vous</a>';
+                document.getElementById('switchText').innerHTML = 'Vous avez un compte ? <a id="switchLink">Connectez-vous</a>';
+                document.getElementById('switchLink').addEventListener('click', toggleAuthMode);
             } else {
                 document.getElementById('loginForm').classList.remove('hidden');
                 document.getElementById('signupForm').classList.add('hidden');
-                document.getElementById('switchText').innerHTML = 'Vous n\'avez pas de compte ? <a onclick="toggleAuthMode()">Inscrivez-vous</a>';
+                document.getElementById('switchText').innerHTML = 'Vous n\'avez pas de compte ? <a id="switchLink">Inscrivez-vous</a>';
+                document.getElementById('switchLink').addEventListener('click', toggleAuthMode);
             }
         }
 
@@ -1150,7 +1151,7 @@
 
         // ==================== FEED ====================
         async function loadFeed() {
-            const { data: posts, error } = await supabase
+            const { data: posts, error } = await sb
                 .from('posts')
                 .select(`
                     *,
@@ -1163,18 +1164,17 @@
             const container = document.getElementById('postsContainer');
             
             if (posts && posts.length > 0) {
-                // Add sponsored post every 3 posts
                 let postsHTML = '';
                 posts.forEach((post, index) => {
                     postsHTML += createPostHTML(post);
                     
-                    // Insert sponsored post after every 3rd post
                     if ((index + 1) % 3 === 0) {
                         postsHTML += createSponsoredPost();
                     }
                 });
                 
                 container.innerHTML = postsHTML;
+                attachPostListeners();
             } else {
                 container.innerHTML = '<div class="loading">Aucune publication pour le moment</div>';
             }
@@ -1223,13 +1223,13 @@
                         <i class="fas fa-ellipsis-h post-options"></i>
                     </div>
                     
-                    <img src="${post.image_url}" alt="Post" class="post-image" ondblclick="likePost('${post.id}', this)">
+                    <img src="${post.image_url}" alt="Post" class="post-image post-image-dbl" data-post-id="${post.id}">
                     
                     <div class="post-actions">
-                        <button class="action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}', this)">
+                        <button class="action-btn like-btn ${isLiked ? 'liked' : ''}" data-post-id="${post.id}">
                             <i class="${isLiked ? 'fas' : 'far'} fa-heart"></i>
                         </button>
-                        <button class="action-btn" onclick="focusComment('${post.id}')">
+                        <button class="action-btn comment-focus-btn" data-post-id="${post.id}">
                             <i class="far fa-comment"></i>
                         </button>
                         <button class="action-btn">
@@ -1240,7 +1240,7 @@
                         </button>
                     </div>
                     
-                    <div class="post-likes" id="likes-${post.id}">${likesCount} J'aime</div>
+                    <div class="post-likes" data-likes-id="${post.id}">${likesCount} J'aime</div>
                     
                     ${post.caption ? `
                         <div class="post-caption">
@@ -1249,21 +1249,85 @@
                         </div>
                     ` : ''}
                     
-                    <div class="post-comments-link" onclick="loadComments('${post.id}')">
+                    <div class="post-comments-link load-comments-btn" data-post-id="${post.id}">
                         Afficher les ${commentsCount} commentaires
                     </div>
                     
-                    <div class="post-comments" id="comments-${post.id}"></div>
+                    <div class="post-comments" data-comments-id="${post.id}"></div>
                     
                     <div class="post-time">${timeAgo}</div>
                     
                     <div class="post-add-comment">
                         <span class="comment-emoji">😊</span>
-                        <input type="text" class="comment-input" id="comment-input-${post.id}" placeholder="Ajouter un commentaire..." onkeypress="handleCommentKeypress(event, '${post.id}')">
-                        <button class="comment-submit" onclick="addComment('${post.id}')" disabled id="comment-btn-${post.id}">Publier</button>
+                        <input type="text" class="comment-input" data-input-id="${post.id}" placeholder="Ajouter un commentaire...">
+                        <button class="comment-submit comment-submit-btn" disabled data-submit-id="${post.id}">Publier</button>
                     </div>
                 </div>
             `;
+        }
+
+        function attachPostListeners() {
+            // Like buttons
+            document.querySelectorAll('.like-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const postId = this.getAttribute('data-post-id');
+                    await toggleLike(postId, this);
+                });
+            });
+
+            // Double click to like
+            document.querySelectorAll('.post-image-dbl').forEach(img => {
+                img.addEventListener('dblclick', async function() {
+                    const postId = this.getAttribute('data-post-id');
+                    const post = this.closest('.post');
+                    const likeBtn = post.querySelector('.like-btn');
+                    
+                    if (!likeBtn.classList.contains('liked')) {
+                        await toggleLike(postId, likeBtn);
+                    }
+                });
+            });
+
+            // Comment input listeners
+            document.querySelectorAll('.comment-input').forEach(input => {
+                input.addEventListener('input', function() {
+                    const postId = this.getAttribute('data-input-id');
+                    const btn = document.querySelector(`[data-submit-id="${postId}"]`);
+                    btn.disabled = !this.value.trim();
+                });
+
+                input.addEventListener('keypress', async function(e) {
+                    if (e.key === 'Enter' && this.value.trim()) {
+                        const postId = this.getAttribute('data-input-id');
+                        await addComment(postId);
+                    }
+                });
+            });
+
+            // Comment submit buttons
+            document.querySelectorAll('.comment-submit-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const postId = this.getAttribute('data-submit-id');
+                    await addComment(postId);
+                });
+            });
+
+            // Load comments buttons
+            document.querySelectorAll('.load-comments-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const postId = this.getAttribute('data-post-id');
+                    await loadComments(postId);
+                });
+            });
+
+            // Comment focus buttons
+            document.querySelectorAll('.comment-focus-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const postId = this.getAttribute('data-post-id');
+                    const input = document.querySelector(`[data-input-id="${postId}"]`);
+                    input.focus();
+                });
+            });
         }
 
         // ==================== LIKES ====================
@@ -1272,8 +1336,7 @@
             const isLiked = btn.classList.contains('liked');
             
             if (isLiked) {
-                // Unlike
-                await supabase
+                await sb
                     .from('likes')
                     .delete()
                     .eq('post_id', postId)
@@ -1282,8 +1345,7 @@
                 btn.classList.remove('liked');
                 icon.className = 'far fa-heart';
             } else {
-                // Like
-                await supabase
+                await sb
                     .from('likes')
                     .insert([{ post_id: postId, user_id: currentUser.id }]);
                     
@@ -1294,27 +1356,19 @@
             await updateLikesCount(postId);
         }
 
-        async function likePost(postId, img) {
-            const post = img.closest('.post');
-            const likeBtn = post.querySelector('.action-btn');
-            
-            if (!likeBtn.classList.contains('liked')) {
-                await toggleLike(postId, likeBtn);
-            }
-        }
-
         async function updateLikesCount(postId) {
-            const { count } = await supabase
+            const { count } = await sb
                 .from('likes')
                 .select('*', { count: 'exact', head: true })
                 .eq('post_id', postId);
                 
-            document.getElementById(`likes-${postId}`).textContent = `${count} J'aime`;
+            const el = document.querySelector(`[data-likes-id="${postId}"]`);
+            if (el) el.textContent = `${count} J'aime`;
         }
 
         // ==================== COMMENTS ====================
         async function loadComments(postId) {
-            const { data: comments } = await supabase
+            const { data: comments } = await sb
                 .from('comments')
                 .select(`
                     *,
@@ -1323,7 +1377,7 @@
                 .eq('post_id', postId)
                 .order('created_at', { ascending: true });
                 
-            const container = document.getElementById(`comments-${postId}`);
+            const container = document.querySelector(`[data-comments-id="${postId}"]`);
             
             if (comments && comments.length > 0) {
                 container.innerHTML = comments.map(comment => `
@@ -1337,12 +1391,12 @@
         }
 
         async function addComment(postId) {
-            const input = document.getElementById(`comment-input-${postId}`);
+            const input = document.querySelector(`[data-input-id="${postId}"]`);
             const content = input.value.trim();
             
             if (!content) return;
             
-            await supabase
+            await sb
                 .from('comments')
                 .insert([{
                     post_id: postId,
@@ -1351,39 +1405,21 @@
                 }]);
                 
             input.value = '';
-            document.getElementById(`comment-btn-${postId}`).disabled = true;
+            const btn = document.querySelector(`[data-submit-id="${postId}"]`);
+            btn.disabled = true;
             
             await loadComments(postId);
             
-            // Update comment count
-            const { count } = await supabase
+            const { count } = await sb
                 .from('comments')
                 .select('*', { count: 'exact', head: true })
                 .eq('post_id', postId);
                 
-            const post = document.querySelector(`[data-post-id="${postId}"]`);
-            const link = post.querySelector('.post-comments-link');
-            link.textContent = `Afficher les ${count} commentaires`;
-        }
-
-        function handleCommentKeypress(event, postId) {
-            const input = event.target;
-            const btn = document.getElementById(`comment-btn-${postId}`);
-            
-            btn.disabled = !input.value.trim();
-            
-            if (event.key === 'Enter' && input.value.trim()) {
-                addComment(postId);
-            }
-        }
-
-        function focusComment(postId) {
-            document.getElementById(`comment-input-${postId}`).focus();
+            const link = document.querySelector(`.load-comments-btn[data-post-id="${postId}"]`);
+            if (link) link.textContent = `Afficher les ${count} commentaires`;
         }
 
         // ==================== CREATE POST ====================
-        let selectedFile = null;
-
         function openCreateModal() {
             document.getElementById('createModal').classList.add('active');
         }
@@ -1418,12 +1454,11 @@
             const caption = document.getElementById('captionInput').value;
             const location = document.getElementById('locationInput').value;
 
-            // Upload image
             const fileExt = selectedFile.name.split('.').pop();
             const fileName = `${Math.random()}.${fileExt}`;
             const filePath = `${currentUser.id}/${fileName}`;
 
-            const { error: uploadError } = await supabase.storage
+            const { error: uploadError } = await sb.storage
                 .from('post-images')
                 .upload(filePath, selectedFile);
 
@@ -1432,12 +1467,11 @@
                 return;
             }
 
-            const { data } = supabase.storage
+            const { data } = sb.storage
                 .from('post-images')
                 .getPublicUrl(filePath);
 
-            // Create post
-            await supabase
+            await sb
                 .from('posts')
                 .insert([{
                     user_id: currentUser.id,
@@ -1452,7 +1486,7 @@
 
         // ==================== SUGGESTIONS ====================
         async function loadSuggestions() {
-            const { data: users } = await supabase
+            const { data: users } = await sb
                 .from('profiles')
                 .select('*')
                 .neq('id', currentUser.id)
@@ -1489,25 +1523,31 @@
             return new Date(date).toLocaleDateString('fr-FR');
         }
 
-        function refreshFeed() {
-            loadFeed();
-        }
-
-        function showHome() {
-            document.querySelectorAll('.nav-icon').forEach(icon => icon.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-        }
-
-        function showMessages() {
-            alert('Fonctionnalité à venir !');
-        }
-
-        function showProfile() {
-            alert('Fonctionnalité à venir !');
-        }
-
-        // ==================== START ====================
-        init();
+        // ==================== EVENT LISTENERS ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auth buttons
+            document.getElementById('loginBtn').addEventListener('click', login);
+            document.getElementById('signupBtn').addEventListener('click', signup);
+            document.getElementById('switchLink').addEventListener('click', toggleAuthMode);
+            
+            // Navigation buttons
+            document.getElementById('logoBtn').addEventListener('click', loadFeed);
+            document.getElementById('homeBtn').addEventListener('click', loadFeed);
+            document.getElementById('messagesBtn').addEventListener('click', () => alert('Fonctionnalité à venir !'));
+            document.getElementById('createBtn').addEventListener('click', openCreateModal);
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            
+            // Modal
+            document.getElementById('closeModalBtn').addEventListener('click', closeCreateModal);
+            document.getElementById('uploadArea').addEventListener('click', () => {
+                document.getElementById('fileInput').click();
+            });
+            document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+            document.getElementById('sharePostBtn').addEventListener('click', createPost);
+            
+            // Start app
+            init();
+        });
     </script>
 </body>
 </html>
