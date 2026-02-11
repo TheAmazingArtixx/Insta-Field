@@ -1033,11 +1033,21 @@
                 return;
             }
 
-            const { data: profile } = await sb
+            // Try to find by username first, then by email
+            let { data: profile } = await sb
                 .from('profiles')
                 .select('*')
-                .or(`username.eq.${username},email.eq.${username}`)
-                .single();
+                .eq('username', username)
+                .maybeSingle();
+            
+            if (!profile) {
+                const result = await sb
+                    .from('profiles')
+                    .select('*')
+                    .eq('email', username)
+                    .maybeSingle();
+                profile = result.data;
+            }
 
             if (!profile) {
                 showError('Utilisateur introuvable');
@@ -1094,14 +1104,25 @@
             });
 
             if (error) {
+                console.error('Signup error:', error);
                 showError(error.message);
             } else {
-                await sb.from('profiles').insert([
+                // Create profile immediately
+                const { error: profileError } = await sb.from('profiles').insert([
                     { id: data.user.id, username, full_name: fullname, email }
                 ]);
                 
+                if (profileError) {
+                    console.error('Profile error:', profileError);
+                }
+                
                 currentUser = data.user;
-                await loadUserProfile();
+                currentUser.profile = {
+                    id: data.user.id,
+                    username: username,
+                    full_name: fullname,
+                    email: email
+                };
                 showApp();
             }
         }
@@ -1454,34 +1475,54 @@
             const caption = document.getElementById('captionInput').value;
             const location = document.getElementById('locationInput').value;
 
-            const fileExt = selectedFile.name.split('.').pop();
-            const fileName = `${Math.random()}.${fileExt}`;
-            const filePath = `${currentUser.id}/${fileName}`;
+            try {
+                const fileExt = selectedFile.name.split('.').pop();
+                const fileName = `${Date.now()}.${fileExt}`;
+                const filePath = `${fileName}`;
 
-            const { error: uploadError } = await sb.storage
-                .from('post-images')
-                .upload(filePath, selectedFile);
+                console.log('Uploading to:', filePath);
 
-            if (uploadError) {
-                alert('Erreur lors de l\'upload de l\'image');
-                return;
+                const { data: uploadData, error: uploadError } = await sb.storage
+                    .from('post-images')
+                    .upload(filePath, selectedFile, {
+                        cacheControl: '3600',
+                        upsert: false
+                    });
+
+                if (uploadError) {
+                    console.error('Upload error:', uploadError);
+                    alert('Erreur lors de l\'upload: ' + uploadError.message);
+                    return;
+                }
+
+                const { data: urlData } = sb.storage
+                    .from('post-images')
+                    .getPublicUrl(filePath);
+
+                console.log('Public URL:', urlData.publicUrl);
+
+                const { data: postData, error: postError } = await sb
+                    .from('posts')
+                    .insert([{
+                        user_id: currentUser.id,
+                        image_url: urlData.publicUrl,
+                        caption: caption || null,
+                        location: location || null
+                    }])
+                    .select();
+
+                if (postError) {
+                    console.error('Post error:', postError);
+                    alert('Erreur lors de la création du post: ' + postError.message);
+                    return;
+                }
+
+                closeCreateModal();
+                await loadFeed();
+            } catch (err) {
+                console.error('Error:', err);
+                alert('Erreur: ' + err.message);
             }
-
-            const { data } = sb.storage
-                .from('post-images')
-                .getPublicUrl(filePath);
-
-            await sb
-                .from('posts')
-                .insert([{
-                    user_id: currentUser.id,
-                    image_url: data.publicUrl,
-                    caption: caption || null,
-                    location: location || null
-                }]);
-
-            closeCreateModal();
-            await loadFeed();
         }
 
         // ==================== SUGGESTIONS ====================
